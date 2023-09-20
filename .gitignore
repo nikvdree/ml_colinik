@@ -157,3 +157,12 @@ cython_debug/
 .idea/modules.xml
 .idea/other.xml
 .idea/vcs.xml
+
+etc
+Lib
+Machine-Learning
+.idea
+Scripts
+share
+pyvenv.cfg
+requirements.txt
