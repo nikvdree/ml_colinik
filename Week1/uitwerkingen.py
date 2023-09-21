@@ -81,8 +81,10 @@ def gradient_descent(X, y, theta, alpha, num_iters):
         a = (alpha / m)
 
         theta[0, 0] = theta[0, 0] - a * (htheta - y).sum()
+        #theta[0, 0] = theta[0, 0] - a * ((htheta - y) * (X[::, 0:])).sum() geeft verkeerde waarden
+        #theta[0, 1] = theta[0, 1] - a * ((htheta - y) * (X[::, 0:])).sum() geeft ook verkeerde waarden
         theta[0, 1] = theta[0, 1] - a * ((htheta - y) * (X[::, 1:])).sum()
-        costs.append(compute_cost(X,y,theta.transpose())) #((htheta - y) ** 2).sum() / (2.0 * m)
+        costs.append(compute_cost(X,y,theta.transpose()))
 
     costs = np.array(costs)
 
