@@ -116,23 +116,19 @@ def compute_cost(Theta1, Theta2, X, y):
     # geretourneerd.
     # Let op: de y die hier binnenkomt is de m×1-vector met waarden van 1...10. 
     # Maak gebruik van de methode get_y_matrix() die je in opgave 2a hebt gemaakt
-    # om deze om te zetten naar een matrix. 
+    # om deze om te zetten naar een matrix.
 
-    #YOUR CODE HERE
-
-    m = X.shape[0]  # aantal trainingsexamples
-    num_labels = len(np.unique(y))  # bepaal het aantal unieke labels
-
-    # Converteer y naar binaire matrix
-    Y = np.zeros((m, num_labels))
-    for i in range(m):
-        Y[i, int(y[i]) % num_labels] = 1  # We gebruiken % num_labels om label 10 om te zetten naar 0
-
-    # Bereken de voorspellingen van het netwerk
-    predictions = predict_number(X, Theta1, Theta2)
-
-    # Bereken de kosten met de logistieke kostenfunctie
-    cost = -1/m * np.sum(Y * np.log(predictions) + (1 - Y) * np.log(1 - predictions))
+    m = X.shape[0]
+    num_labels = Theta2.shape[0]
+    
+    # Get the matrix of predictions
+    predictions = predict_number(Theta1, Theta2, X)
+    
+    # Transform y into a binary matrix
+    y_matrix = get_y_matrix(y, num_labels)
+    
+    # Compute the cost using the provided formula
+    cost = -np.sum((y_matrix * np.log(predictions)) + ((1 - y_matrix) * np.log(1 - predictions))) / m
     
     return cost
 
@@ -147,7 +143,9 @@ def sigmoid_gradient(z):
     # Zie de opgave voor de exacte formule. Zorg ervoor dat deze werkt met
     # scalaire waarden en met vectoren.
 
-    pass
+    #YOUR CODE HERE
+    sigz = sigmoid(z)
+    return sigz * (1 - sigz)
 
 # ==== OPGAVE 3b ====
 def nn_check_gradients(Theta1, Theta2, X, y): 
@@ -156,11 +154,31 @@ def nn_check_gradients(Theta1, Theta2, X, y):
 
     Delta2 = np.zeros(Theta1.shape)
     Delta3 = np.zeros(Theta2.shape)
-    m = 1 #voorbeeldwaarde; dit moet je natuurlijk aanpassen naar de echte waarde van m
-
-    for i in range(m): 
-        #YOUR CODE HERE
-        pass
+    m = X.shape[0] #voorbeeldwaarde; dit moet je natuurlijk aanpassen naar de echte waarde van m
+    # m = 10
+    # print(f"Iterations: {m}")
+    y_matrix = get_y_matrix(y, Theta2.shape[0])
+    
+    for i in range(m):
+        # YOUR CODE HERE
+        
+        # Step 1: Perform forward propagation
+        a1 = np.hstack(([1], X[i]))  # Add bias unit
+        z2 = Theta1.dot(a1)
+        a2 = np.hstack(([1], sigmoid(z2)))  # Add bias unit
+        z3 = Theta2.dot(a2)
+        a3 = sigmoid(z3)
+        
+        # Step 2: Compute the error term for the output layer
+        delta3 = a3 - y_matrix[i]
+        
+        # Step 3: Compute the error term for the hidden layer
+        delta2 = Theta2.T.dot(delta3) * sigmoid_gradient(np.hstack(([1], z2)))
+        delta2 = delta2[1:]  # Remove the bias unit
+        
+        # Step 4: Accumulate the gradient
+        Delta2 += np.outer(delta2, a1)
+        Delta3 += np.outer(delta3, a2)
 
     Delta2_grad = Delta2 / m
     Delta3_grad = Delta3 / m
