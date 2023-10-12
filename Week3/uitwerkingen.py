@@ -2,6 +2,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
 from tensorflow import keras
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 # OPGAVE 1a
 def plot_image(img, label):
@@ -10,8 +12,8 @@ def plot_image(img, label):
     # Maak gebruik van plt.cm.binary voor de cmap-parameter van plt.imgshow.
 
     # YOUR CODE HERE
-
-    pass
+    plt.imshow(img, cmap='gray')
+    plt.show()
 
 
 # OPGAVE 1b
@@ -22,8 +24,8 @@ def scale_data(X):
     # Deel alle elementen in de matrix 'element wise' door de grootste waarde in deze matrix.
 
     # YOUR CODE HERE
-
-    pass
+    X = np.divide(X,np.amax(X))
+    return X
 
 # OPGAVE 1c
 def build_model():
@@ -36,8 +38,10 @@ def build_model():
     # en retourneer het resultaat.
 
     # Het staat je natuurlijk vrij om met andere settings en architecturen te experimenteren.
-
-    model = None
+    model = keras.models.Sequential()
+    model.add(keras.Input(shape=(32,28,28)))
+    model.add(keras.layers.Dense(32))
+    model.compile()
 
     # YOUR CODE HERE
 
