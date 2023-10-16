@@ -27,6 +27,7 @@ def scale_data(X):
     X = np.divide(X,np.amax(X))
     return X
 
+
 # OPGAVE 1c
 def build_model():
     # Deze methode maakt het keras-model dat we gebruiken voor de classificatie van de mnist
@@ -38,12 +39,16 @@ def build_model():
     # en retourneer het resultaat.
 
     # Het staat je natuurlijk vrij om met andere settings en architecturen te experimenteren.
-    model = keras.models.Sequential()
-    model.add(keras.Input(shape=(32,28,28)))
-    model.add(keras.layers.Dense(32))
-    model.compile()
 
-    # YOUR CODE HERE
+    model = keras.Sequential([
+        keras.layers.Flatten(input_shape=(28, 28)),  # Flatten the 28x28 images
+        keras.layers.Dense(128, activation=tf.nn.relu),  # Fully connected hidden layer with ReLU activation
+        keras.layers.Dense(10, activation=tf.nn.softmax)  # Output layer with softmax activation
+    ])
+
+    model.compile(optimizer='adam', 
+                  loss='sparse_categorical_crossentropy',
+                  metrics=['accuracy'])
 
     return model
 
@@ -55,7 +60,7 @@ def conf_matrix(labels, pred):
     # https://www.tensorflow.org/api_docs/python/tf/math/confusion_matrix
     
     # YOUR CODE HERE
-    pass
+    return tf.math.confusion_matrix(labels, pred)
     
 
 # OPGAVE 2b
@@ -72,7 +77,14 @@ def conf_els(conf, labels):
     # https://numpy.org/doc/stable/reference/generated/numpy.diagonal.html
  
     # YOUR CODE HERE
-    pass
+    result = []
+    for i, label in enumerate(labels):
+        tp = conf[i,i]
+        fp = np.sum(conf[:,i]) - tp
+        fn = np.sum(conf[i,:]) - tp
+        tn = np.sum(conf) - tp - fp - fn
+        result.append((label, tp, fp, fn, tn))
+    return result
 
 # OPGAVE 2c
 def conf_data(metrics):
@@ -83,13 +95,15 @@ def conf_data(metrics):
 
     # VERVANG ONDERSTAANDE REGELS MET JE EIGEN CODE
     
-    tp = 1
-    fp = 1
-    fn = 1
-    tn = 1
+    tps = np.sum([x[1] for x in metrics])
+    fps = np.sum([x[2] for x in metrics])
+    fns = np.sum([x[3] for x in metrics])
+    tns = np.sum([x[4] for x in metrics])
 
-    # BEREKEN HIERONDER DE JUISTE METRIEKEN EN RETOURNEER DIE 
-    # ALS EEN DICTIONARY
+    tpr = tps / (tps + fns)  # True Positive Rate
+    ppv = tps / (tps + fps)  # Precision
+    tnr = tns / (tns + fps)  # True Negative Rate
+    fpr = fps / (fps + tns)  # False Positive Rate
 
-    rv = {'tpr':0, 'ppv':0, 'tnr':0, 'fpr':0 }
-    return rv
+    return {'tpr': tpr, 'ppv': ppv, 'tnr': tnr, 'fpr': fpr}
+
